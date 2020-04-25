@@ -33,8 +33,11 @@ def load_colors(file_type_couples: List[Tuple[str, FlowerType]]):
     """
     d = {}
 
-    def helper(s):
-        return sum(1 for c in s if c.isupper())
+    def helper(s, l):
+        res = sum(1 for c in s if c.isupper())
+        if l == "w":
+            return 2 - res
+        return res
 
     for file, flower_type in file_type_couples:
         with open(file, "r") as fp:
@@ -43,7 +46,7 @@ def load_colors(file_type_couples: List[Tuple[str, FlowerType]]):
 
                 gene_code = []
                 for i in range(0, len(gene), 2):
-                    gene_code.append(helper(gene[i : i + 2]))
+                    gene_code.append(helper(gene[i : i + 2], gene[i].lower()))
 
                 d[Flower(flower_type, tuple(gene_code))] = color
     return d
@@ -59,6 +62,19 @@ class Flower:
     TULIPS = FlowerType("__TULIPS__")
     VIOLETS = FlowerType("__VIOLETS__")
     WINDFLOWERS = FlowerType("__WINDFLOWERS__")
+    
+    # r y w s
+    flower_unused_gene = {
+        COSMOS: [-2],
+        HYACINTHS: [-1],
+        LILIES: [-2],
+        MUMS: [-1],
+        PANSIES: [-1],
+        ROSES: [],
+        TULIPS: [-2],
+        VIOLETS: [-1],
+        WINDFLOWERS: [-1],
+    }
 
     def __init__(self, flower_type: str, genes: Sequence[int]):
         """
@@ -71,6 +87,25 @@ class Flower:
     @property
     def color(self) -> str:
         return flower_color[self]
+    
+    @property
+    def code(self) -> str:
+        gene_name = [
+            "rr Rr RR".split(),
+            "yy Yy YY".split(),
+            "WW Ww ww".split(),  # «W» gene is recessive to «w»
+            "ss Ss SS".split(),
+        ]
+
+        # Some flowers don't use all genes.
+        for i in Flower.flower_unused_gene[self.type]:
+            del gene_name[i]
+
+        res = []
+        for i, g in enumerate(self.genes):
+            res.append(gene_name[i][g])
+
+        return " ".join(res)
 
     def __add__(self, other) -> List[Tuple["Flower", float]]:
         """
@@ -100,29 +135,11 @@ class Flower:
         return hash((self.type, self.genes))
 
     def __str__(self) -> str:
-        return f"{self.code()} {self.color}"
+        return f"{self.code} {self.color}"
 
     def __repr__(self):
-        return f"{self.code()} {self.color}"
-        return f"Flower({self.genes})"
-
-    def code(self) -> str:
-        gene_name = [
-            "rr Rr RR".split(),
-            "yy Yy YY".split(),
-            "WW Ww ww".split(),  # «W» gene is recessive to «w», used only for roses
-            "ss Ss SS".split(),
-        ]
-
-        # Remove W gene for non roses.
-        if self.type != Flower.ROSES:
-            del gene_name[2]
-
-        res = []
-        for i, g in enumerate(self.genes):
-            res.append(gene_name[i][g])
-
-        return " ".join(res)
+        return f"{self.code} {self.color}"
+        return f"Flower({self.type}, {self.genes})"
 
 
 flower_color = load_colors(
@@ -147,12 +164,23 @@ FlowerPedia = NewType(
 
 
 # Roses seeds genes.
-base_red = Flower(Flower.ROSES, [2, 0, 2, 1])
-base_yellow = Flower(Flower.ROSES, [0, 2, 2, 0])
-base_white = Flower(Flower.ROSES, [0, 0, 1, 0])
+rose_base_red = Flower(Flower.ROSES, [2, 0, 2, 1])
+rose_base_yellow = Flower(Flower.ROSES, [0, 2, 2, 0])
+rose_base_white = Flower(Flower.ROSES, [0, 0, 1, 0])
 
 # Only blue rose gene combination.
-tgt_blue = Flower(Flower.ROSES, [2, 2, 0, 0])
+rose_tgt_blue = Flower(Flower.ROSES, [2, 2, 0, 0])
+
+
+# Mums seeds genes.
+mum_base_red = Flower(Flower.MUMS, [0, 0, 1])
+mum_base_yellow = Flower(Flower.MUMS, [0, 2, 0])
+mum_base_white = Flower(Flower.MUMS, [2, 0, 0])
+
+# Only blue mum gene combination.
+mum_tgt_green_0 = Flower(Flower.MUMS, [2, 2, 0])
+mum_tgt_green_1 = Flower(Flower.MUMS, [2, 2, 1])
+
 
 
 def explore(base_flowers: List[Flower]) -> FlowerPedia:
@@ -218,7 +246,7 @@ def ancestors(
     parents, *_ = flowerpedia[tgt]
 
     if parents is None:
-        return {"color": flower_color[tgt]}
+        return {"color": tgt.color}
     else:
         p1, p2 = parents
 
@@ -229,20 +257,22 @@ def ancestors(
         mem[p2] = a2
 
         comb_prob = dict(p1 + p2)[tgt]
-        return {
-            "A": (str(p1), a1),
-            "B": (str(p2), a2),
+        return {"code": tgt.code,
+            "A": a1,
+            "B": a2,
             "prob": f"{comb_prob:.03}",
-            "color": flower_color[tgt],
+            "color": tgt.color,
         }
 
 
 def main():
-    flowerpedia = explore([base_red, base_white, base_yellow])
+    flowerpedia = explore([mum_base_red, mum_base_white, mum_base_yellow])
     # print(*flower_vocab.items(), sep="\n")
 
-    pprint(flowerpedia[tgt_blue])
-    pprint(ancestors(tgt_blue, flowerpedia, {}))
+    pprint(flowerpedia[mum_tgt_green_0])
+    pprint(ancestors(mum_tgt_green_0, flowerpedia, {}))
+    # pprint(flowerpedia[mum_tgt_green_1])
+    # pprint(ancestors(mum_tgt_green_1, flowerpedia, {}))
 
 
 if __name__ == "__main__":
