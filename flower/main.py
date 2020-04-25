@@ -64,7 +64,7 @@ class Flower:
     WINDFLOWERS = FlowerType("__WINDFLOWERS__")
     
     # r y w s
-    flower_unused_gene = {
+    flower_unused_gene: Dict[FlowerType, List[int]] = {
         COSMOS: [-2],
         HYACINTHS: [-1],
         LILIES: [-2],
@@ -76,7 +76,7 @@ class Flower:
         WINDFLOWERS: [-1],
     }
 
-    def __init__(self, flower_type: str, genes: Sequence[int]):
+    def __init__(self, flower_type: FlowerType, genes: Sequence[int]):
         """
         Create a Flower based on its genes.
         Genes are represented by a sequence of 3 or 4 integers 0⩽x_i⩽2
@@ -266,11 +266,11 @@ def ancestors(
 
 
 def main():
-    flowerpedia = explore([mum_base_red, mum_base_white, mum_base_yellow])
+    flowerpedia = explore([rose_base_red, rose_base_white, rose_base_yellow])
     # print(*flower_vocab.items(), sep="\n")
 
-    pprint(flowerpedia[mum_tgt_green_0])
-    pprint(ancestors(mum_tgt_green_0, flowerpedia, {}))
+    pprint(flowerpedia[rose_tgt_blue])
+    pprint(ancestors(rose_tgt_blue, flowerpedia, {}))
     # pprint(flowerpedia[mum_tgt_green_1])
     # pprint(ancestors(mum_tgt_green_1, flowerpedia, {}))
 
