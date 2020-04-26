@@ -5,6 +5,7 @@ from operator import mul
 from collections import deque
 from functools import reduce
 from pprint import pprint
+from os import path
 from typing import *
 
 # This code uses informations provided by this source: https://docs.google.com/document/d/1ARIQCUc5YVEd01D7jtJT9EEJF45m07NXhAm4fOpNvCs/mobilebasic
@@ -40,7 +41,7 @@ def load_colors(file_type_couples: List[Tuple[str, FlowerType]]):
         return res
 
     for file, flower_type in file_type_couples:
-        with open(file, "r") as fp:
+        with open(path.join("data", file), "r") as fp:
             for line in fp.readlines():
                 _, gene, *_, color = line.strip().split("\t")
 
@@ -93,7 +94,7 @@ class Flower:
         gene_name = [
             "rr Rr RR".split(),
             "yy Yy YY".split(),
-            "WW Ww ww".split(),  # «W» gene is recessive to «w»
+            "WW Ww ww".split(),  # 0 is dominant over 2 for W gene.
             "ss Ss SS".split(),
         ]
 
