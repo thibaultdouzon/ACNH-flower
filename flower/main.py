@@ -3,6 +3,7 @@ import json
 
 from operator import mul
 from collections import deque, namedtuple, Counter
+from dataclasses import dataclass
 from functools import reduce
 from pprint import pprint
 from os import path
@@ -184,30 +185,34 @@ flower_color = load_colors(
     ]
 )
 
-# TODO (FEAT001): Give a newtype to the value structure + add test hybrid to it
+
+@dataclass
+class HybridTestInfo:
+    test_flower: Optional[Flower]
+    test_prob: float
+    test_color: Optional[FlowerColor]
+
+@dataclass
+class AncestorInfo:
+    parents: Optional[Tuple[Flower, Flower]]
+    ancestors: Set[Flower]
+    test: Optional[HybridTestInfo]
+    micro_prob: float
+    no_test_global_prob: float
+    
+    
+    @property
+    def total_prob(self) -> float:
+        if self.test:
+            return self.test.test_prob * self.no_test_global_prob
+        else:
+            return self.no_test_global_prob
+    
+
 FlowerPedia = NewType(
     "FlowerPedia",
-    Dict[Flower, Tuple[Optional[Tuple[Flower, Flower]], Set[Flower], float, float, float]],
+    Dict[Flower, AncestorInfo],
 )
-
-
-# Roses seeds genes.
-rose_base_red = Flower(Flower.ROSES, [2, 0, 0, 1])
-rose_base_yellow = Flower(Flower.ROSES, [0, 2, 0, 0])
-rose_base_white = Flower(Flower.ROSES, [0, 0, 1, 0])
-
-# Only blue rose gene combination.
-rose_tgt_blue = Flower(Flower.ROSES, [2, 2, 2, 0])
-
-
-# Mums seeds genes.
-mum_base_red = Flower(Flower.MUMS, [0, 0, 1])
-mum_base_yellow = Flower(Flower.MUMS, [0, 2, 0])
-mum_base_white = Flower(Flower.MUMS, [2, 0, 0])
-
-# Only blue mum gene combination.
-mum_tgt_green_0 = Flower(Flower.MUMS, [2, 2, 0])
-mum_tgt_green_1 = Flower(Flower.MUMS, [2, 2, 1])
 
 
 def universal_get(
@@ -233,7 +238,7 @@ def universal_get(
         
         return test
 
-    tests = [
+    tests_AND = [
         test_cond(_type, "type"),
         test_cond(_color, "color"),
         test_cond(_seed, "is_seed"),
@@ -241,19 +246,19 @@ def universal_get(
     ]
     
     for flower in flower_color:
-        if all(test(flower) for test in tests):
+        if all(test(flower) for test in tests_AND):
             res.append(flower)
     return res
 
 
-def prob_test_hybrid(f1: Flower, f2: Flower, f_h: Flower, known_flowers: Set[Flower]) -> Tuple[Optional[Flower], float, Optional[FlowerColor]]:
+def prob_test_hybrid(f1: Flower, f2: Flower, f_h: Flower, known_flowers: Set[Flower]) -> HybridTestInfo:
     assert f_h in (f[0] for f in f1 + f2), f"Flower {f_h} is not an hybrid of {f1} + {f2}."
 
-    return None, 1., None
+    # return None, 1., None
 
     color_counter = Counter(f.color for f, _ in f1 + f2)
     if color_counter[f_h.color] == 1:
-        return None, 1., None
+        return HybridTestInfo(test_flower=None, test_prob=1., test_color=None)
 
     # Now we need to test the flower because we are not sure. 
     f_h_p = next(p for f, p in f1 + f2 if f == f_h)
@@ -290,7 +295,7 @@ def prob_test_hybrid(f1: Flower, f2: Flower, f_h: Flower, known_flowers: Set[Flo
                     best_test_f = other_f
                     best_color = test_color
 
-    return best_test_f, best_p_color, best_color
+    return HybridTestInfo(test_flower=best_test_f, test_prob=best_p_color, test_color=best_color)
 """
 p(f OK) = p(f color OK) * p(f OK | f color OK)
 
@@ -302,8 +307,11 @@ def explore(base_flowers: List[Flower]) -> FlowerPedia:
     """
     Compute best path to obtain each flower using only `base_flowers`
     """
-    # TODO (FEAT001): Include hybrid test in dp storage
-    dp = FlowerPedia({f: (None, set(), 1.0, 1.0, 1.0) for f in base_flowers})
+    dp = FlowerPedia({f: AncestorInfo(parents=None,
+                                      ancestors=set(),
+                                      test=None,
+                                      micro_prob=1.,
+                                      no_test_global_prob=1.) for f in base_flowers})
 
     flower_l = base_flowers.copy()
 
@@ -317,17 +325,17 @@ def explore(base_flowers: List[Flower]) -> FlowerPedia:
         i += 1
         modified = False
         for f1 in flower_l:
-            _, pred_f1, part_prob_f1, prob_f1, prob_test_f1 = dp[f1]
+            dp_f1 = dp[f1]
             for f2 in flower_l:
-                _, pred_f2, part_prob_f2, prob_f2, prob_test_f2 = dp[f2]
+                dp_f2 = dp[f2]
 
                 # Compute unique flowers needed to produce f1 and f2
-                pred_common = pred_f1 & pred_f2
+                pred_common = dp_f1.ancestors & dp_f2.ancestors
                 prob_common = (
-                    prob_f1
-                    * prob_f2
+                    dp_f1.no_test_global_prob
+                    * dp_f2.no_test_global_prob
                     / reduce(
-                        mul, (dp[fi][2] for fi in pred_common), 1.0
+                        mul, (dp[fi].micro_prob for fi in pred_common), 1.0
                     )  # All flower in pred_common are counter twice in `prob_f1 * prob_f2`
                     # We must divide by `product(prob(i) for i in pred_common)`
                 )
@@ -337,25 +345,29 @@ def explore(base_flowers: List[Flower]) -> FlowerPedia:
                 for f, p in ff:
                     if f in (f1, f2):
                         continue
-                    if f in dp and prob_common < dp[f][4]:
+                    if f in dp and prob_common < dp[f].total_prob:
                         continue
                     
                     
-                    prob_test = prob_test_hybrid(f1, f2, f, pred_f1 | pred_f2 | {f1, f2})
-                    if prob_test is not None:
-                        test_fower, test_prob, test_color = prob_test
-                    else:
-                        test_prob = 0.
+                    test_result = prob_test_hybrid(f1, f2, f, dp_f1.ancestors | dp_f2.ancestors | {f1, f2})
                     
-                    prob_f = prob_common * p * test_prob
+                    prob_f = prob_common * p * test_result.test_prob
                     if prob_f > 0:
                         if not f in dp:
-                            dp[f] = ((f1, f2), pred_f1 | pred_f2 | {f1, f2}, p, prob_common * p, prob_f)
+                            dp[f] = AncestorInfo(parents=(f1, f2),
+                                                 ancestors=dp_f1.ancestors | dp_f2.ancestors | {f1, f2},
+                                                 test=test_result if test_result.test_flower is not None else None,
+                                                 micro_prob=p,
+                                                 no_test_global_prob=prob_common * p)
                             modified = True
 
                         # We want to maximize overall probability of obtaining flower f.
-                        elif dp[f][4] < prob_f:
-                            dp[f] = ((f1, f2), pred_f1 | pred_f2 | {f1, f2}, p, prob_common * p, prob_f)
+                        elif dp[f].total_prob < prob_f:
+                            dp[f] = AncestorInfo(parents=(f1, f2),
+                                                 ancestors=dp_f1.ancestors | dp_f2.ancestors | {f1, f2},
+                                                 test=test_result if test_result.test_flower is not None else None,
+                                                 micro_prob=p,
+                                                 no_test_global_prob=prob_common * p)
                             modified = True
 
         # All flowers obtained so far will be mixed during next iteration of algortihm.
@@ -365,23 +377,24 @@ def explore(base_flowers: List[Flower]) -> FlowerPedia:
 
 
 def ancestors(
-    tgt: Flower, flowerpedia: FlowerPedia, mem: Dict[Flower, Dict]
+    tgt: Flower, flowerpedia: FlowerPedia, mem: Dict[Flower, Dict] = None
 ) -> Dict[str, Any]:
-    # TODO (FEAT001): include hybrid test in output.
     """
     Determines best way to obtain Flower `tgt` given a `flowerpedia`
     Recursively get ancestors of `tgt`in the FlowerPedia and aggregate results.
     """
+    if mem is None:
+        mem = {}
     # Memoization for speedup
     if tgt in mem:
         return mem[tgt]
 
-    parents, *_ = flowerpedia[tgt]
+    tgt_info = flowerpedia[tgt]
 
-    if parents is None:
+    if tgt_info.parents is None:
         return {"color": tgt.color, "code": tgt.code}
     else:
-        p1, p2 = parents
+        p1, p2 = tgt_info.parents
 
         a1 = ancestors(p1, flowerpedia, mem)
         mem[p1] = a1
@@ -396,14 +409,21 @@ def ancestors(
             "B": a2,
             "prob": f"{comb_prob:.03}",
             "color": tgt.color,
+            "test": tgt_info.test
         }
 
 
 def main():
-    # flowerpedia = explore(universal_get(flower_color, _type=Flower.ROSES, _color=None, _seed=True))
+    flowerpedia = explore(universal_get(flower_color, _type=Flower.ROSES, _color=None, _seed=True, _island=False))
     # print([(f, flowerpedia[f]) for f in universal_get(flower_color, _type=Flower.ROSES, _color=Flower.BLUE, _seed=None)])
     
-    print(universal_get(flower_color, _type=Flower.WINDFLOWERS, _island=True))
+    pprint(ancestors(universal_get(flower_color, _type=Flower.ROSES, _color=Flower.BLUE, _seed=None, _island=None)[0], flowerpedia))
+    
+    r_r = universal_get(flower_color, _type=Flower.ROSES, _color=Flower.RED, _seed=True, _island=False)[0]
+    r_p = Flower(Flower.ROSES, (0, 0, 0, 0))
+    
+    pprint(r_r + r_p)
+    # print(universal_get(flower_color, _type=Flower.WINDFLOWERS, _island=True))
     
     # r_w = universal_get(flower_color, _type=Flower.ROSES, _color=Flower.WHITE, _seed=True)[0]
     # r_r = universal_get(flower_color, _type=Flower.ROSES, _color=Flower.RED, _seed=True)[0]
