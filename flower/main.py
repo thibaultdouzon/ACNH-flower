@@ -51,18 +51,17 @@ class Flower:
     YELLOW = FlowerColor("Yellow")
     WHITE = FlowerColor("White")
 
-    # TODO (FEAT004): Add Oo gene name
-    # r y w s o
+    # r y o w s
     flower_unused_gene: Dict[FlowerType, List[int]] = {
-        COSMOS: [-2],
-        HYACINTHS: [-1],
-        LILIES: [-2],
-        MUMS: [-1],
-        PANSIES: [-1],
-        ROSES: [],
-        TULIPS: [-2],
-        VIOLETS: [-1],
-        WINDFLOWERS: [-1],
+        COSMOS: [-3, -2],
+        HYACINTHS: [-3, -1],
+        LILIES: [-3, -2],
+        MUMS: [-3, -1],
+        PANSIES: [-3, -1],
+        ROSES: [-3],
+        TULIPS: [-3, -2],
+        VIOLETS: [-3, -1],
+        WINDFLOWERS: [-4, -1],
     }
 
     def __init__(self, flower_type: FlowerType, genes: Sequence[int]):
@@ -87,10 +86,10 @@ class Flower:
 
     @property
     def code(self) -> str:
-        # TODO (FEAT004): Add Oo gene name
         gene_name = [
             "rr Rr RR".split(),
             "yy Yy YY".split(),
+            "oo Oo OO".split(),  # Replaces Y gene for Windflowers.
             "WW Ww ww".split(),  # 0 is dominant over 2 for W gene.
             "ss Ss SS".split(),
         ]
@@ -404,7 +403,7 @@ def main():
     # flowerpedia = explore(universal_get(flower_color, _type=Flower.ROSES, _color=None, _seed=True))
     # print([(f, flowerpedia[f]) for f in universal_get(flower_color, _type=Flower.ROSES, _color=Flower.BLUE, _seed=None)])
     
-    print(universal_get(flower_color, _type=Flower.ROSES, _island=True))
+    print(universal_get(flower_color, _type=Flower.WINDFLOWERS, _island=True))
     
     # r_w = universal_get(flower_color, _type=Flower.ROSES, _color=Flower.WHITE, _seed=True)[0]
     # r_r = universal_get(flower_color, _type=Flower.ROSES, _color=Flower.RED, _seed=True)[0]
