@@ -51,7 +51,8 @@ class Flower:
     YELLOW = FlowerColor("Yellow")
     WHITE = FlowerColor("White")
 
-    # r y w s
+    # TODO (FEAT004): Add Oo gene name
+    # r y w s o
     flower_unused_gene: Dict[FlowerType, List[int]] = {
         COSMOS: [-2],
         HYACINTHS: [-1],
@@ -86,6 +87,7 @@ class Flower:
 
     @property
     def code(self) -> str:
+        # TODO (FEAT004): Add Oo gene name
         gene_name = [
             "rr Rr RR".split(),
             "yy Yy YY".split(),

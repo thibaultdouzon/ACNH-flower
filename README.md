@@ -8,4 +8,6 @@ Computes best way to obtain specific flower colors in Animal Crossing: New Horiz
 
 - [ ] FEAT002: Compute flower Graph and display it.
 
-- [ ] FEAT003: Add tag & attribute for island flowers
+- [x] FEAT003: Add tag & attribute for island flowers
+
+- [ ] FEAT004: Fix code nomenclatura for windflowers
