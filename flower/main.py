@@ -13,7 +13,7 @@ from typing import *
 
 FlowerType = NewType("FlowerType", str)
 FlowerColor = NewType("FlowerColor", str)
-ColorSeed = namedtuple("ColorSeed", "color seed")
+ColorSeedIsland = namedtuple("ColorSeedIsland", "color seed island")
 
 # Mixing rules for any genesself.
 # (gene_flower_1, gene_flower_2): [(gene_hybrid_flower, probability of apparition)]
@@ -81,6 +81,10 @@ class Flower:
         return bool(flower_color[self].seed)
 
     @property
+    def is_island(self) -> bool:
+        return bool(flower_color[self].island)
+
+    @property
     def code(self) -> str:
         gene_name = [
             "rr Rr RR".split(),
@@ -133,7 +137,7 @@ class Flower:
         return f"Flower({self.type}, {self.genes})"
 
 
-FlowerDB = NewType("FlowerDB", Dict[Flower, ColorSeed])
+FlowerDB = NewType("FlowerDB", Dict[Flower, ColorSeedIsland])
 
 
 def load_colors(file_type_couples: List[Tuple[str, FlowerType]]) -> FlowerDB:
@@ -151,15 +155,17 @@ def load_colors(file_type_couples: List[Tuple[str, FlowerType]]) -> FlowerDB:
     for file, flower_type in file_type_couples:
         with open(path.join("data", file), "r") as fp:
             for line in fp.readlines():
-                _, gene, *_, color = line.strip().split("\t")
+                _, gene, *_, color_info = line.strip().split("\t")
 
                 gene_code = []
                 for i in range(0, len(gene), 2):
                     gene_code.append(helper(gene[i : i + 2], gene[i].lower()))
 
-                c = FlowerColor(color.split()[0])
-                is_seed = len(color.split()) > 1
-                d[Flower(flower_type, tuple(gene_code))] = ColorSeed(c, is_seed)
+                c = FlowerColor(color_info.split()[0])
+                is_seed = color_info.split()[1] == "(seed)" if len(color_info.split()) > 1 else False
+                is_island = color_info.split()[1] == "(island)" if len(color_info.split()) > 1 else False
+                
+                d[Flower(flower_type, tuple(gene_code))] = ColorSeedIsland(c, is_seed, is_island)
     return d
 
 
@@ -207,7 +213,8 @@ def universal_get(
     flower_color: FlowerPedia,
     _type: Optional[FlowerType] = None,
     _color: Optional[FlowerColor] = None,
-    _seed: Optional[bool] = None
+    _seed: Optional[bool] = None,
+    _island: Optional[bool] = None
 ) -> List[Flower]:
     
     res = []
@@ -225,12 +232,15 @@ def universal_get(
         
         return test
 
-    test_type = test_cond(_type, "type")
-    test_color = test_cond(_color, "color")
-    test_seed = test_cond(_seed, "is_seed")
+    tests = [
+        test_cond(_type, "type"),
+        test_cond(_color, "color"),
+        test_cond(_seed, "is_seed"),
+        test_cond(_island, "is_island")
+    ]
     
     for flower in flower_color:
-        if test_type(flower) and test_color(flower) and test_seed(flower):
+        if all(test(flower) for test in tests):
             res.append(flower)
     return res
 
@@ -389,7 +399,11 @@ def ancestors(
 
 
 def main():
-    flowerpedia = explore(universal_get(flower_color, _type=Flower.ROSES, _color=None, _seed=True))
+    # flowerpedia = explore(universal_get(flower_color, _type=Flower.ROSES, _color=None, _seed=True))
+    # print([(f, flowerpedia[f]) for f in universal_get(flower_color, _type=Flower.ROSES, _color=Flower.BLUE, _seed=None)])
+    
+    print(universal_get(flower_color, _type=Flower.ROSES, _island=True))
+    
     # r_w = universal_get(flower_color, _type=Flower.ROSES, _color=Flower.WHITE, _seed=True)[0]
     # r_r = universal_get(flower_color, _type=Flower.ROSES, _color=Flower.RED, _seed=True)[0]
     # r_y = universal_get(flower_color, _type=Flower.ROSES, _color=Flower.YELLOW, _seed=True)[0]
@@ -404,15 +418,7 @@ def main():
     # print(set(f. color for r in [r_y] for f, p in r_r1 + r))
     # print(set(f. color for r in [r_y] for f, p in r_r2 + r))
     
-    
-    # print(*flower_vocab.items(), sep="\n")
 
-    # pprint(flowerpedia[rose_tgt_blue])
-    # pprint(ancestors(rose_tgt_blue, flowerpedia, {}))
-    # pprint(flowerpedia[mum_tgt_green_1])
-    # pprint(ancestors(mum_tgt_green_1, flowerpedia, {}))
-
-    print([(f, flowerpedia[f]) for f in universal_get(flower_color, _type=Flower.ROSES, _color=Flower.BLUE, _seed=None)])
 
 
 if __name__ == "__main__":

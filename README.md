@@ -7,3 +7,5 @@ Computes best way to obtain specific flower colors in Animal Crossing: New Horiz
 - [ ] FEAT001: (ongoing) Implement color test in graph exploration.
 
 - [ ] FEAT002: Compute flower Graph and display it.
+
+- [ ] FEAT003: Add tag & attribute for island flowers
