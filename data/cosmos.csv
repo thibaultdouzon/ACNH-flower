@@ -12,7 +12,7 @@
 13	RryySS	1 - 0 - 2	01 - 00 - 11	01	00	11	Pink
 14	RrYyss	1 - 1 - 0	01 - 01 - 00	01	01	00	Orange
 15	RrYySs	1 - 1 - 1	01 - 01 - 01	01	01	01	Orange
-17	RrYySS	1 - 1 - 2	01 - 01 - 11	01	01	11	Pink
+17	RrYySS	1 - 1 - 2	01 - 01 - 11	01	01	11	Pink (island)
 1c	RrYYss	1 - 2 - 0	01 - 11 - 00	01	11	00	Orange
 1d	RrYYSs	1 - 2 - 1	01 - 11 - 01	01	11	01	Orange
 1f	RrYYSS	1 - 2 - 2	01 - 11 - 11	01	11	11	Orange
@@ -20,7 +20,7 @@
 31	RRyySs	2 - 0 - 1	11 - 00 - 01	11	00	01	Red
 33	RRyySS	2 - 0 - 2	11 - 00 - 11	11	00	11	Red
 34	RRYyss	2 - 1 - 0	11 - 01 - 00	11	01	00	Orange
-35	RRYySs	2 - 1 - 1	11 - 01 - 01	11	01	01	Orange
+35	RRYySs	2 - 1 - 1	11 - 01 - 01	11	01	01	Orange (island)
 37	RRYySS	2 - 1 - 2	11 - 01 - 11	11	01	11	Red
 3c	RRYYss	2 - 2 - 0	11 - 11 - 00	11	11	00	Black
 3d	RRYYSs	2 - 2 - 1	11 - 11 - 01	11	11	01	Black

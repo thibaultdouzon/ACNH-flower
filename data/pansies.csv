@@ -9,7 +9,7 @@
 0f	rrYYww	0 - 2 - 2	00 - 11 - 11	00	11	11	Yellow
 10	RryyWW	1 - 0 - 0	01 - 00 - 00	01	00	00	Red
 11	RryyWw	1 - 0 - 1	01 - 00 - 01	01	00	01	Red
-13	Rryyww	1 - 0 - 2	01 - 00 - 11	01	00	11	Blue
+13	Rryyww	1 - 0 - 2	01 - 00 - 11	01	00	11	Blue (island)
 14	RrYyWW	1 - 1 - 0	01 - 01 - 00	01	01	00	Orange
 15	RrYyWw	1 - 1 - 1	01 - 01 - 01	01	01	01	Orange
 17	RrYyww	1 - 1 - 2	01 - 01 - 11	01	01	11	Orange
@@ -23,5 +23,5 @@
 35	RRYyWw	2 - 1 - 1	11 - 01 - 01	11	01	01	Red
 37	RRYyww	2 - 1 - 2	11 - 01 - 11	11	01	11	Purple
 3c	RRYYWW	2 - 2 - 0	11 - 11 - 00	11	11	00	Orange
-3d	RRYYWw	2 - 2 - 1	11 - 11 - 01	11	11	01	Orange
+3d	RRYYWw	2 - 2 - 1	11 - 11 - 01	11	11	01	Orange (island)
 3f	RRYYww	2 - 2 - 2	11 - 11 - 11	11	11	11	Purple

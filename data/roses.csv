@@ -60,7 +60,7 @@ c5	RRyyWwSs	2 - 0 - 1 - 1	11 - 00 - 01 - 01	11	00	01	01	Red
 c7	RRyyWwSS	2 - 0 - 1 - 2	11 - 00 - 01 - 11	11	00	01	11	Pink
 cc	RRyywwss	2 - 0 - 2 - 0	11 - 00 - 11 - 00	11	00	11	00	Black
 cd	RRyywwSs	2 - 0 - 2 - 1	11 - 00 - 11 - 01	11	00	11	01	Red
-cf	RRyywwSS	2 - 0 - 2 - 2	11 - 00 - 11 - 11	11	00	11	11	Pink
+cf	RRyywwSS	2 - 0 - 2 - 2	11 - 00 - 11 - 11	11	00	11	11	Pink (island)
 d0	RRYyWWss	2 - 1 - 0 - 0	11 - 01 - 00 - 00	11	01	00	00	Orange
 d1	RRYyWWSs	2 - 1 - 0 - 1	11 - 01 - 00 - 01	11	01	00	01	Orange
 d3	RRYyWWSS	2 - 1 - 0 - 2	11 - 01 - 00 - 11	11	01	00	11	Yellow
@@ -74,7 +74,7 @@ f0	RRYYWWss	2 - 2 - 0 - 0	11 - 11 - 00 - 00	11	11	00	00	Orange
 f1	RRYYWWSs	2 - 2 - 0 - 1	11 - 11 - 00 - 01	11	11	00	01	Orange
 f3	RRYYWWSS	2 - 2 - 0 - 2	11 - 11 - 00 - 11	11	11	00	11	Yellow
 f4	RRYYWwss	2 - 2 - 1 - 0	11 - 11 - 01 - 00	11	11	01	00	Orange
-f5	RRYYWwSs	2 - 2 - 1 - 1	11 - 11 - 01 - 01	11	11	01	01	Orange
+f5	RRYYWwSs	2 - 2 - 1 - 1	11 - 11 - 01 - 01	11	11	01	01	Orange (island)
 f7	RRYYWwSS	2 - 2 - 1 - 2	11 - 11 - 01 - 11	11	11	01	11	Yellow
 fc	RRYYwwss	2 - 2 - 2 - 0	11 - 11 - 11 - 00	11	11	11	00	Blue
 fd	RRYYwwSs	2 - 2 - 2 - 1	11 - 11 - 11 - 01	11	11	11	01	Red

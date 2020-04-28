@@ -9,7 +9,7 @@
 0f	rrOOww	0 - 2 - 2	00 - 11 - 11	00	11	11	Orange
 10	RrooWW	1 - 0 - 0	01 - 00 - 00	01	00	00	Red
 11	RrooWw	1 - 0 - 1	01 - 00 - 01	01	00	01	Red
-13	Rrooww	1 - 0 - 2	01 - 00 - 11	01	00	11	Blue
+13	Rrooww	1 - 0 - 2	01 - 00 - 11	01	00	11	Blue (island)
 14	RrOoWW	1 - 1 - 0	01 - 01 - 00	01	01	00	Pink
 15	RrOoWw	1 - 1 - 1	01 - 01 - 01	01	01	01	Pink
 17	RrOoww	1 - 1 - 2	01 - 01 - 11	01	01	11	Pink
@@ -23,5 +23,5 @@
 35	RROoWw	2 - 1 - 1	11 - 01 - 01	11	01	01	Red
 37	RROoww	2 - 1 - 2	11 - 01 - 11	11	01	11	Purple
 3c	RROOWW	2 - 2 - 0	11 - 11 - 00	11	11	00	Pink
-3d	RROOWw	2 - 2 - 1	11 - 11 - 01	11	11	01	Pink
+3d	RROOWw	2 - 2 - 1	11 - 11 - 01	11	11	01	Pink (island)
 3f	RROOww	2 - 2 - 2	11 - 11 - 11	11	11	11	Purple
