@@ -1,3 +1,4 @@
+import argparse
 import itertools as it
 import json
 
@@ -16,7 +17,7 @@ FlowerType = NewType("FlowerType", str)
 FlowerColor = NewType("FlowerColor", str)
 ColorSeedIsland = namedtuple("ColorSeedIsland", "color seed island")
 
-# Mixing rules for any genesself.
+# Mixing rules for any genes.
 # (gene_flower_1, gene_flower_2): [(gene_hybrid_flower, probability of apparition)]
 mix_d = {
     (0, 0): [(0, 1.0)],
@@ -35,6 +36,7 @@ mix_d = {
 def mix_flowers(f1, f2):
     """
     Memoized flower hybridation for speedup. Equivalent to a lookup table.
+    Do not use as is, use Flower's addition to combine Flowers.
     """
     res_genes = (mix_d[g] for g in zip(f1, f2))
 
@@ -59,6 +61,18 @@ class Flower:
     VIOLETS = FlowerType("__VIOLETS__")
     WINDFLOWERS = FlowerType("__WINDFLOWERS__")
 
+    flowertypes = [
+        COSMOS,
+        HYACINTHS,
+        LILIES,
+        MUMS,
+        PANSIES,
+        ROSES,
+        TULIPS,
+        VIOLETS,
+        WINDFLOWERS,
+    ]
+
     BLACK = FlowerColor("Black")
     BLUE = FlowerColor("Blue")
     GREEN = FlowerColor("Green")
@@ -68,6 +82,8 @@ class Flower:
     RED = FlowerColor("Red")
     YELLOW = FlowerColor("Yellow")
     WHITE = FlowerColor("White")
+
+    flowercolors = [BLACK, BLUE, GREEN, PINK, PURPLE, ORANGE, RED, YELLOW, WHITE]
 
     # r y o w s
     flower_unused_gene: Dict[FlowerType, List[int]] = {
@@ -275,6 +291,9 @@ def universal_get(
     return res
 
 
+uget = universal_get
+
+
 def prob_test_hybrid(
     f1: Flower, f2: Flower, f_h: Flower, known_flowers: Set[Flower]
 ) -> HybridTestInfo:
@@ -322,9 +341,11 @@ def prob_test_hybrid(
     f_h_colors = {f.color for f, p in f_h + f_h}
     for other_f, _ in concurrent_flowers:
         concurrent_colors = {f.color for f, p in other_f + other_f}
-        
-        possible_test_colors = h_colors - concurrent_colors - {f_h.color,}
-        
+
+        possible_test_colors = (
+            h_colors - concurrent_colors - {f_h.color,}
+        )
+
         if len(possible_test_colors) > 0:
             for test_color in possible_test_colors:
                 p_color = sum(p for f, p in f_h + f_h if f.color == test_color)
@@ -375,7 +396,6 @@ def explore(base_flowers: List[Flower]) -> FlowerPedia:
     i = 0
 
     while modified:
-        print(i, len(flowerpedia))
         i += 1
         modified = False
 
@@ -470,37 +490,88 @@ def ancestors(
         }
 
 
-def main():
-    import cProfile
+def cli():
+    parser = argparse.ArgumentParser()
 
-    cProfile.run(
-        "explore(universal_get(flower_info, _type=Flower.ROSES, _color=None, _seed=True, _island=False))"
+    parser.add_argument(
+        "-t",
+        "--type",
+        type=(lambda x: getattr(Flower, x.upper())),
+        choices=Flower.flowertypes,
+        help="Type of the searched flower",
     )
+    tgt_group = parser.add_mutually_exclusive_group()
+    
+    tgt_group.add_argument(
+        "-c",
+        "--color",
+        type=(lambda x: getattr(Flower, x.upper())),
+        choices=Flower.flowercolors,
+        help="Color of the searched flower",
+    )
+
+    tgt_group.add_argument("--code", action="extend", type=int, nargs="+", help="Genes of the searched flower")
+
+    parser.add_argument(
+        "-s",
+        "--seed",
+        action="store_true",
+        help="Use seed flowers to obtain target flower",
+    )
+    parser.add_argument(
+        "-i",
+        "--island",
+        action="store_true",
+        help="Use island flowers to obtain target flower",
+    )
+
+    parser.add_argument(
+        "--test",
+        action="store",
+        type=bool,
+        help="Include tests during the search",
+        default=True,
+    )
+
+    args = parser.parse_args()
+
+    if args.code:
+        tgt_flowers = [Flower(args.type, args.code)]
+    else:
+        tgt_flowers = uget(
+            flower_info, _type=args.type, _color=args.color, _seed=None, _island=None
+        )
+
+    base_flowers = []
+    if args.seed:
+        base_flowers += uget(
+            flower_info, _type=args.type, _color=None, _seed=args.seed, _island=None
+        )
+    if args.island:
+        base_flowers += uget(
+            flower_info, _type=args.type, _color=None, _seed=None, _island=args.island
+        )
+
+    print(f"{args=}")
+    print(f"{tgt_flowers=}")
+    return base_flowers, tgt_flowers
+
+
+def main():
+    # import cProfile
+
+    # cProfile.run(
+    #     "explore(uget(flower_info, _type=Flower.ROSES, _color=None, _seed=True, _island=False))"
+    # )
 
     # flowerpedia = explore(universal_get(flower_info, _type=Flower.ROSES, _color=None, _seed=True, _island=False))
     # pprint(ancestors(universal_get(flower_info, _type=Flower.ROSES, _color=Flower.BLUE, _seed=None, _island=None)[0], flowerpedia))
 
-    r_r = universal_get(
-        flower_info, _type=Flower.ROSES, _color=Flower.RED, _seed=True, _island=False
-    )[0]
-    r_p = Flower(Flower.ROSES, (0, 0, 0, 0))
+    base, tgt = cli()
+    flowerpedia = explore(base)
 
-    pprint(r_r + r_p)
-    # print(universal_get(flower_color, _type=Flower.WINDFLOWERS, _island=True))
-
-    # r_w = universal_get(flower_color, _type=Flower.ROSES, _color=Flower.WHITE, _seed=True)[0]
-    # r_r = universal_get(flower_color, _type=Flower.ROSES, _color=Flower.RED, _seed=True)[0]
-    # r_y = universal_get(flower_color, _type=Flower.ROSES, _color=Flower.YELLOW, _seed=True)[0]
-
-    # r_r1 = (r_w + r_r)[0][0]
-    # r_r2 = (r_w + r_r)[2][0]
-    # print(r_w + r_r)
-    # print(r_r1)
-
-    # print(prob_test_hybrid(r_w, r_r, r_r2, {r_r, r_w, r_y}))
-
-    # print(set(f. color for r in [r_y] for f, p in r_r1 + r))
-    # print(set(f. color for r in [r_y] for f, p in r_r2 + r))
+    max_tgt = max(tgt, key=lambda x: flowerpedia[x].total_prob)
+    pprint(ancestors(max_tgt, flowerpedia))
 
 
 if __name__ == "__main__":
