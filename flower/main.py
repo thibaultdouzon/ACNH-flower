@@ -174,7 +174,7 @@ def load_flower_info(file_type_couples: List[Tuple[str, FlowerType]]) -> FlowerD
     for file, flower_type in file_type_couples:
         with open(path.join("data", file), "r") as fp:
             for line in fp.readlines():
-                _, gene, *_, color_info = line.strip().split("\t")
+                _, gene, *_, color_info = line.strip().split(",")
 
                 gene_code = []
                 for i in range(0, len(gene), 2):
