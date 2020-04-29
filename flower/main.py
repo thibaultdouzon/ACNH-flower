@@ -1,13 +1,24 @@
+#!/usr/bin/env python3
+
+"""
+File:   main.py
+Author: Thibault Douzon
+Date:   2020-04-29
+        12:01:14
+mail:   douzont@gmail.com
+"""
+
+
 import argparse
 import itertools as it
 import json
 import warnings
 
-from operator import mul
 from collections import deque, namedtuple, Counter
 from dataclasses import dataclass
 from functools import reduce, lru_cache
 from pprint import pprint
+from operator import mul
 from os import path
 from typing import *
 
