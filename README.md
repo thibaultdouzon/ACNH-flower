@@ -4,7 +4,7 @@ Computes best way to obtain specific flower colors in Animal Crossing: New Horiz
 
 ## Backlog netxt:
 
-- [x] FEAT001: (ongoing) Implement color test in graph exploration.
+- [x] FEAT001: Implement color test in graph exploration.
 
 - [ ] FEAT002: Compute flower Graph and display it.
 
