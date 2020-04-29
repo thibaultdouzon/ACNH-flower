@@ -1,6 +1,7 @@
 import argparse
 import itertools as it
 import json
+import warnings
 
 from operator import mul
 from collections import deque, namedtuple, Counter
@@ -103,6 +104,10 @@ class Flower:
         Create a Flower based on its genes.
         Genes are represented by a sequence of 3 or 4 integers 0⩽x_i⩽2
         """
+        if flower_type == Flower.VIOLETS:
+            warnings.warn(f"Flower type {flower_type} is not supported, gene data is missing in csv file.")
+        assert len(genes) == 5 - len(Flower.flower_unused_gene[flower_type]), f"Expected genes length of {5 - len(Flower.flower_unused_gene[flower_type])}, got {len(genes)} instead."
+        
         self.type = flower_type
         self.genes = tuple(genes)
 
@@ -208,9 +213,12 @@ def load_flower_info(file_type_couples: List[Tuple[str, FlowerType]]) -> FlowerD
                     else False
                 )
 
-                d[Flower(flower_type, tuple(gene_code))] = ColorSeedIsland(
-                    c, is_seed, is_island
-                )
+                # For violets
+                if gene_code:
+                    d[Flower(flower_type, tuple(gene_code))] = ColorSeedIsland(
+                        c, is_seed, is_island
+                    )
+
     return d
 
 
@@ -534,6 +542,8 @@ def cli():
     )
 
     args = parser.parse_args()
+
+    print(args)
 
     if args.code:
         tgt_flowers = [Flower(args.type, args.code)]
