@@ -294,7 +294,7 @@ def prob_test_hybrid(
     best_p_color = 0.0
     best_color = None
 
-    # TODO (FEAT001): flower should be able to test with itself.
+    # Try to hybrid new flower with old (known_flowers).
     for other_f in known_flowers:
         h_colors = {f.color for f, p in f_h + other_f}
 
@@ -316,6 +316,22 @@ def prob_test_hybrid(
                 if p_color > best_p_color:
                     best_p_color = p_color
                     best_test_f = other_f
+                    best_color = test_color
+
+    # Try to hybrid new flower with self.
+    f_h_colors = {f.color for f, p in f_h + f_h}
+    for other_f, _ in concurrent_flowers:
+        concurrent_colors = {f.color for f, p in other_f + other_f}
+        
+        possible_test_colors = h_colors - concurrent_colors - {f_h.color,}
+        
+        if len(possible_test_colors) > 0:
+            for test_color in possible_test_colors:
+                p_color = sum(p for f, p in f_h + f_h if f.color == test_color)
+
+                if p_color > best_p_color:
+                    best_p_color = p_color
+                    best_test_f = f_h
                     best_color = test_color
 
     return HybridTestInfo(
