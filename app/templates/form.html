@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<form>
+    <div class="section row">
+        <div class="row">
+            <h6 class="col offset-s1">Select your target flower type and color</h6>
+        </div>
+        <div class="row">
+            <div class="input-field col offset-s2 s3">
+                <i class="material-icons prefix">local_florist</i>
+                <select id="tgt-type">
+                    <option value="" disabled selected>Choose your option</option>
+                    {% for type in flower_types %}
+                    <option value="{{type.name.upper()}}">{{type.name}}</option>
+                    {% endfor %}
+                </select>
+                <label>Desired flower type</label>
+            </div>
+        
+        
+            <div class="input-field col offset-s1 s3">
+                <i class="material-icons prefix">palette</i>
+                <select id="tgt-color">
+                    <option value="" disabled selected>Choose your option</option>
+                    {% for color in flower_colors %}
+                    <option value="{{color.name.upper()}}">{{color.name}}</option>
+                    {% endfor %}
+                </select>
+                <label>Desired flower color</label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="divider"></div>
+        <div class="section row">
+            <div class="row">
+                <h6 class="col offset-s1">Select the flowers you already own</h6>
+            </div>
+            <div class="row">
+                <div class="col offset-s2 s3">
+                    <label>
+                        <input type="checkbox" class="filled-in" checked="checked" />
+                        <span/>
+                        <i class="material-icons prefix">storefront</i>
+                        <span>Seeds</span>
+                    </label>
+                </div>
+
+                <div class="col offset-s1 s3">
+                    <label>
+                        <input type="checkbox" class="filled-in" checked="checked" />
+                        <span/>
+                        <i class="material-icons prefix">beach_access</i>
+                        <span>Island hybrids</span>
+                    </label>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+{% endblock %}

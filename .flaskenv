@@ -1,0 +1,2 @@
+FLASK_APP=acnh_flower.py
+FLASK_ENV=development
