@@ -12,6 +12,7 @@ mail:   douzont@gmail.com
 import argparse
 import itertools as it
 import json
+import pickle
 import warnings
 
 from collections import deque, namedtuple, Counter
@@ -122,7 +123,7 @@ class Flower:
         self.type = flower_type
         self.genes = tuple(genes)
 
-        self._hash = hash((self.type, self.genes))
+        # self._hash = hash((self.type, self.genes))
 
     @property
     def color(self) -> FlowerColor:
@@ -169,7 +170,7 @@ class Flower:
 
     def __eq__(self, other) -> bool:
         if isinstance(other, Flower):
-            return self._hash == other._hash
+            return self.genes == other.genes and self.type == other.type
         elif isinstance(other, Sequence):
             return self.genes == other
         return False
@@ -178,7 +179,7 @@ class Flower:
         return (self.type, self.genes) < (other.type, other.genes)
 
     def __hash__(self):
-        return self._hash
+        return hash((self.type, self.genes))
 
     def __str__(self) -> str:
         return f"({self.type} {self.code} {self.color} {self.genes} {self.is_seed})"
@@ -510,14 +511,26 @@ def ancestors(
 
 
 def get_flowerpedia_db():
+    if path.isfile("db/flowerpedia_db.pkl"):
+        db = pickle.load(open("db/flowerpedia_db.pkl", "rb"))
+        return db
+
     db = {}
     for t in Flower.flowertypes:
+        print(t)
         for s in [True, False]:
             for i in [True, False]:
                 if not s and not i:
                     continue
                 
-                db[(t, s, i)] = explore(uget(flower_info, _type=t, _seed=s, _island=i))
+                base_flowers = []
+                if s:
+                    base_flowers += uget(flower_info, _type=t, _seed=s, _island=False)
+                if i:
+                    base_flowers += uget(flower_info, _type=t, _seed=False, _island=i)
+                    
+                
+                db[(t, s, i)] = explore(base_flowers)
     return db
 
 
@@ -596,8 +609,12 @@ def main():
     #     "explore(uget(flower_info, _type=Flower.ROSES, _color=None, _seed=True, _island=False))"
     # )
 
+    # --- 
+
     # flowerpedia = explore(universal_get(flower_info, _type=Flower.ROSES, _color=None, _seed=True, _island=False))
     # pprint(ancestors(universal_get(flower_info, _type=Flower.ROSES, _color=Flower.BLUE, _seed=None, _island=None)[0], flowerpedia))
+
+    # ---
 
     base, tgt = cli()
     flowerpedia = explore(base)
@@ -607,6 +624,15 @@ def main():
     max_tgt = max(tgt, key=lambda x: flowerpedia[x].total_prob)
     pprint(ancestors(max_tgt, flowerpedia))
 
+    # ---
+    
+    # db = get_flowerpedia_db()
+    
+    # with open("flowerpedia_db.pkl", "wb") as f:
+    #     pickle.dump(db, f)
+        
+    # print(db)
 
 if __name__ == "__main__":
+    
     main()
