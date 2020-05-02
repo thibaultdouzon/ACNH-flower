@@ -275,7 +275,7 @@ FlowerPedia = NewType("FlowerPedia", Dict[Flower, AncestorInfo],)
 
 
 def universal_get(
-    flower_color: FlowerPedia,
+    flower_info: FlowerDB,
     _type: Optional[FlowerType] = None,
     _color: Optional[FlowerColor] = None,
     _seed: Optional[bool] = None,
@@ -304,7 +304,7 @@ def universal_get(
         test_cond(_island, "is_island"),
     ]
 
-    for flower in flower_color:
+    for flower in flower_info:
         if all(test(flower) for test in tests_AND):
             res.append(flower)
     return res
@@ -509,6 +509,18 @@ def ancestors(
         }
 
 
+def get_flowerpedia_db():
+    db = {}
+    for t in Flower.flowertypes:
+        for s in [True, False]:
+            for i in [True, False]:
+                if not s and not i:
+                    continue
+                
+                db[(t, s, i)] = explore(uget(flower_info, _type=t, _seed=s, _island=i))
+    return db
+
+
 def cli():
     parser = argparse.ArgumentParser()
 
@@ -545,11 +557,10 @@ def cli():
     )
 
     parser.add_argument(
-        "--test",
-        action="store",
-        type=bool,
+        "--no-test",
+        action="store_true",
         help="Include tests during the search",
-        default=True,
+        default=False,
     )
 
     args = parser.parse_args()
@@ -591,6 +602,8 @@ def main():
     base, tgt = cli()
     flowerpedia = explore(base)
 
+    print(len(flowerpedia))
+    
     max_tgt = max(tgt, key=lambda x: flowerpedia[x].total_prob)
     pprint(ancestors(max_tgt, flowerpedia))
 
