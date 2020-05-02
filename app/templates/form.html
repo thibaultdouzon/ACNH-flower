@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<form>
+<form action="/results" method="post" onsubmit="return validate_form()">
     <div class="section row">
         <div class="row">
             <h6 class="col offset-s1">Select your target flower type and color</h6>
@@ -10,25 +10,27 @@
         <div class="row">
             <div class="input-field col offset-s2 s3">
                 <i class="material-icons prefix">local_florist</i>
-                <select id="tgt-type">
+                <select id="tgt-type" name="tgt_type">
                     <option value="" disabled selected>Choose your option</option>
                     {% for type in flower_types %}
                     <option value="{{type.name.upper()}}">{{type.name}}</option>
                     {% endfor %}
                 </select>
                 <label>Desired flower type</label>
+                <span style="color: red; visibility: hidden" id="error-tgt-type"><b>[This field is mandatory]</b></span>
             </div>
         
         
             <div class="input-field col offset-s1 s3">
                 <i class="material-icons prefix">palette</i>
-                <select id="tgt-color">
+                <select id="tgt-color" name="tgt_color">
                     <option value="" disabled selected>Choose your option</option>
                     {% for color in flower_colors %}
                     <option value="{{color.name.upper()}}">{{color.name}}</option>
                     {% endfor %}
                 </select>
                 <label>Desired flower color</label>
+                <span style="color: red; visibility: hidden" id="error-tgt-color"><b>[This field is mandatory]</b></span>
             </div>
         </div>
     </div>
@@ -36,12 +38,15 @@
     <div class="divider"></div>
         <div class="section row">
             <div class="row">
-                <h6 class="col offset-s1">Select the flowers you already own</h6>
+                <h6 class="col offset-s1">
+                    Select the flowers you already own
+                    <span style="color: red; visibility: hidden" id="error-flowers"><b>[Select at least one item]</b></span>
+                </h6> 
             </div>
             <div class="row">
                 <div class="col offset-s2 s3">
                     <label>
-                        <input type="checkbox" class="filled-in" checked="checked" />
+                        <input type="checkbox" class="filled-in" checked="checked" name="seed"/>
                         <span/>
                         <i class="material-icons prefix">storefront</i>
                         <span>Seeds</span>
@@ -50,7 +55,7 @@
 
                 <div class="col offset-s1 s3">
                     <label>
-                        <input type="checkbox" class="filled-in" checked="checked" />
+                        <input type="checkbox" class="filled-in" name="island"/>
                         <span/>
                         <i class="material-icons prefix">beach_access</i>
                         <span>Island hybrids</span>
@@ -60,6 +65,48 @@
 
         </div>
     </div>
+    <div class="row">
+        <div class="col offset-s5">
+            
+            <button class="btn waves-effect waves-light" type="submit">Submit
+                <i class="material-icons right">send</i>
+            </button>
+        
+        </div>
+    </div>
 </form>
+<script>
+    function validate_form(){
+        let tgt_type = $("#tgt-type :selected").val() !== "";
+        let tgt_color = $("#tgt-color :selected").val() !== "";
 
+        let seed = $("[name='seed']")[0].checked;
+        let island = $("[name='island']")[0].checked;
+        let res = tgt_type && tgt_color && (seed || island);
+        if (!res){
+            M.toast({html: "Some fields are mandatory"})
+            
+            let errors = new Array();
+            if (!tgt_type) {
+                errors.push($("#error-tgt-type"))
+            }
+            if (!tgt_color) {
+                errors.push($("#error-tgt-color"))
+            }
+            if (!seed && !island) {
+                errors.push($("#error-flowers"))
+            }
+
+            for (let e in errors) {
+                errors[e][0].style.visibility = "visible";
+            }
+            setTimeout(() =>     {
+                for (let e in errors) {
+                    errors[e][0].style.visibility = "hidden";
+                }
+            }, 3000);
+        }
+        return res
+    }
+</script>
 {% endblock %}
