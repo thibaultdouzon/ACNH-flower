@@ -192,26 +192,33 @@ class Flower:
 FlowerDB = NewType("FlowerDB", Dict[Flower, ColorSeedIsland])
 
 
-def load_flower_info(file_type_couples: List[Tuple[str, FlowerType]]) -> FlowerDB:
-    """
-    Reads a csv file containing color information about flowers.
-    """
-    d = FlowerDB({})
-
+def read_code(code: str) -> tuple:
+    code = code.replace(" ", "")
     def helper(s, l):
         res = sum(1 for c in s if c.isupper())
         if l == "w":
             return 2 - res
         return res
 
+    gene_code = []
+    for i in range(0, len(code), 2):
+        gene_code.append(helper(code[i : i + 2], code[i].lower()))
+    
+    return tuple(gene_code)
+
+
+def load_flower_info(file_type_couples: List[Tuple[str, FlowerType]]) -> FlowerDB:
+    """
+    Reads a csv file containing color information about flowers.
+    """
+    d = FlowerDB({})
+
     for file, flower_type in file_type_couples:
         with open(path.join("data", file), "r") as fp:
             for line in fp.readlines():
                 _, gene, *_, color_info = line.strip().split(",")
 
-                gene_code = []
-                for i in range(0, len(gene), 2):
-                    gene_code.append(helper(gene[i : i + 2], gene[i].lower()))
+                gene_code = read_code(gene)
 
                 c = FlowerColor(color_info.split()[0])
                 is_seed = (
@@ -510,6 +517,49 @@ def ancestors(
         }
 
 
+def stepify(tgt_flower: Flower, ancestor_tree: Dict[str, Any]) -> Tuple[List[Any], Dict[Flower, str]]:
+    """
+    Gives an ordered list of steps to obtain root flower of the ancestor tree.
+    each step is: 
+
+        If this is the first time we make this flower:
+            - Obtained Flower
+            - Flowers needed (their names) -> 0, 1 (self hybrid) or 2
+            - Tests needed (HybridTestInfo)
+        
+        Otherwise no steps needed
+        
+    """
+    res: List[Any] = []
+    names: Dict[Flower, str] = {}
+
+    def helper_postfix(tree: dict, names_ref: Dict[Flower, str], res_ref: List[Any]):
+        curr_gene = read_code(tree["code"])
+        print(curr_gene)
+        curr_f = Flower(tgt_flower.type, curr_gene)
+        
+        # Downstream
+        children = [tree[v] for v in ["A", "B"] if v in tree and tree[v]]
+
+        for child in children:
+            helper_postfix(child, names_ref, res_ref)
+
+        # Upstream
+        
+        # This is a new flower
+        if tree["code"] not in names_ref:
+            n_color = sum(1 for v in names_ref.values() if v.startswith(tree["color"]))
+            names_ref[tree["code"]] = f"{tree['color']}_{n_color}"
+            
+            
+            res_ref.append((curr_f,
+                            tuple(Flower(tgt_flower.type, read_code(c["code"])) for c in children),
+                            tree["test"] if "test" in tree else None))
+        
+    helper_postfix(ancestor_tree, names, res)
+    return res, names
+
+
 def get_flowerpedia_db():
     if path.isfile("db/flowerpedia_db.pkl"):
         db = pickle.load(open("db/flowerpedia_db.pkl", "rb"))
@@ -622,7 +672,8 @@ def main():
     print(len(flowerpedia))
     
     max_tgt = max(tgt, key=lambda x: flowerpedia[x].total_prob)
-    pprint(ancestors(max_tgt, flowerpedia))
+    pprint(a := ancestors(max_tgt, flowerpedia))
+    pprint(stepify(max_tgt, a))
 
     # ---
     

@@ -75,6 +75,6 @@ Python 3.8.0
 
 - [x] FEAT005: Speedup hybrid test runs
 
-- [ ] FEAT006: command line interface with argparse
+- [x] FEAT006: command line interface with argparse
 
 - [ ] FEAT007: Web interface

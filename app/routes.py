@@ -8,6 +8,7 @@ from flower import main
 app.flower_db = main.get_flowerpedia_db()
 
 @app.route("/", methods=["GET"])
+@app.route("/index", methods=["GET"])
 def index():
     flower_types = [
         {"name": str(f_type).strip("_").capitalize()} for f_type in main.Flower.flowertypes
