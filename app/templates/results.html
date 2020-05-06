@@ -59,6 +59,8 @@ F NAME | COLOR | GENES | SEED | ISLAND
                 </li>
                 {% endfor %}
             </ul> -->
+
+{% if len(hybrid_flowers) > 0 %}
 <div class="divider"></div>
 
 <h6>Steps</h6>
@@ -73,16 +75,16 @@ F NAME | COLOR | GENES | SEED | ISLAND
                     <th>Flower name</th>
                     <th>Flower color</th>
                     <th>Flower genes</th>
-                    <th>Parent A name</th>
-                    <th>Parent B name</th>
+                    <th>Parent A</th>
+                    <th>Parent B</th>
                     <th>Probability</th>
-                    <th>Block duplicates</th>
-                    <th>Test</th>
+                    <th>Block duplication of</th>
+                    <th>Test #</th>
                 </tr>
             </thead>
             
             <tbody>
-                {% for i, (flower, ancestors, prob, test) in enumerate(hybrid_flowers, 1) %}
+                {% for i, (flower, ancestors, prob, test, test_num) in enumerate(hybrid_flowers, 1) %}
                 <tr id="{{names[flower.code]}}">
                     <td>
                         {{i}}
@@ -115,10 +117,10 @@ F NAME | COLOR | GENES | SEED | ISLAND
                             {% endif %}
                         {% endif %}
                     </td>
-                    <td>
+                    <td onmouseenter="enter_background('Test_{{test_num}}')" onmouseleave="leave_background('Test_{{test_num}}')">
                         {% if test %}
                         
-                        YES
+                        Test_{{test_num}}
 
                         {% else %}
                         {% endif %}
@@ -129,16 +131,80 @@ F NAME | COLOR | GENES | SEED | ISLAND
         </table>
     </div>
 </div>
+{% else %}
+{% endif %}
 
+{% if len(tests) > 0 %}
+<div class="divider"></div>
+
+<h6>Tests</h6>
+<div class="row">
+
+    <div class="col offset-s1 s10">
+        
+        <table class="highlight">
+            <thead>
+                <tr>
+                    <th>Test #</th>
+                    <th>Unknown flower</th>
+                    <th>Test flower</th>
+                    <th>Test target color</th>
+                    <th>Probability</th>
+                    <th>Block duplication of</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                {% for i, (test) in enumerate(tests, 1) %}
+                <tr id="Test_{{i}}">
+                    <td>
+                        {{i}}
+                    </td>
+                    <td onmouseenter="enter_background('{{names[test.unknown_flower.code]}}')" onmouseleave="leave_background('{{names[test.unknown_flower.code]}}')">
+                        {{names[test.unknown_flower.code]}}
+                    </td>
+                    <td onmouseenter="enter_background('{{names[test.test_flower.code]}}')" onmouseleave="leave_background('{{names[test.test_flower.code]}}')">
+                        {{names[test.test_flower.code]}}
+                    </td>
+                    <td>
+                        {{test.test_color}}
+                    </td>
+                    <td>
+                        {{test.test_prob}} %
+                    </td>
+                    <td>
+                        {% if test.unknown_flower.color == test.test_color %}
+                        {{names[test.unknown_flower.code]}}
+                        {% else %}
+                            {% if test.test_flower.color == test.test_color %}
+                            {{names[test.test_flower.code]}}
+                            {% else %}
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if test %}
+                        
+                        Test_{{i}}
+
+                        {% else %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+{% endif %}
 <script>
     function enter_background(flower_name) {
-        $(`#${flower_name}`)[0].classList.add("light-blue") 
-        // $(`#${flower_name}`)[0].classList.add("accent-3") 
+        $(`#${flower_name}`)[0].classList.add("light-blue")
     }
 
     function leave_background(flower_name) {
-        $(`#${flower_name}`)[0].classList.remove("light-blue") 
-        // $(`#${flower_name}`)[0].classList.remove("accent-3") 
+        $(`#${flower_name}`)[0].classList.remove("light-blue")
     }
 
 </script>

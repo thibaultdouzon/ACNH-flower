@@ -12,6 +12,7 @@ mail:   douzont@gmail.com
 import argparse
 import itertools as it
 import json
+import math
 import pickle
 import warnings
 
@@ -258,6 +259,7 @@ flower_info = load_flower_info(
 
 @dataclass
 class HybridTestInfo:
+    unknown_flower: Optional[Flower]
     test_flower: Optional[Flower]
     test_prob: float
     test_color: Optional[FlowerColor]
@@ -329,11 +331,11 @@ def prob_test_hybrid(
 
     if f1.color == f2.color == f_h.color:
         # TODO FEAT???: Implement a test that blocks one flower and perform test to prove hybrid is not duplicate.
-        return HybridTestInfo(test_flower=None, test_prob=0., test_color=None)
+        return HybridTestInfo(unknown_flower=None, test_flower=None, test_prob=0., test_color=None)
 
     color_counter = Counter(f.color for f, _ in f12)
     if color_counter[f_h.color] == 1:
-        return HybridTestInfo(test_flower=None, test_prob=1.0, test_color=None)
+        return HybridTestInfo(unknown_flower=None, test_flower=None, test_prob=1.0, test_color=None)
 
     # return HybridTestInfo(test_flower=None, test_prob=0., test_color=None)
 
@@ -387,7 +389,7 @@ def prob_test_hybrid(
                     best_color = test_color
 
     return HybridTestInfo(
-        test_flower=best_test_f, test_prob=best_p_color, test_color=best_color
+        unknown_flower=f_h, test_flower=best_test_f, test_prob=best_p_color, test_color=best_color
     )
 
 
@@ -408,7 +410,7 @@ def explore(base_flowers: List[Flower]) -> FlowerPedia:
             f: AncestorInfo(
                 parents=None,
                 ancestors=set(),
-                test=HybridTestInfo(None, 1, None),
+                test=HybridTestInfo(None, None, 1, None),
                 micro_prob=1.0,
                 no_test_global_prob=1.0,
             )
@@ -555,6 +557,10 @@ def stepify(tgt_flower: Flower, ancestor_tree: Dict[str, Any]) -> Tuple[List[Any
             n_color = sum(1 for v in names_ref.values() if v.startswith(tree["color"]))
             names_ref[tree["code"]] = f"{tree['color']}_{n_color}"
             
+            if "test" in tree and tree["test"] and tree["test"].test_flower not in names_ref:
+                n_color = sum(1 for v in names_ref.values() if v.startswith(tree["test"].test_flower.color))
+                names_ref[tree["test"].test_flower.code] = f"{tree['test'].test_flower.color}_{n_color}"
+            
             
             res_ref.append((curr_f,
                             tuple(Flower(tgt_flower.type, read_code(c["code"])) for c in children),
@@ -676,7 +682,10 @@ def main():
 
     print(len(flowerpedia))
     
-    max_tgt = max(tgt, key=lambda x: flowerpedia[x].total_prob)
+    for t in tgt:
+        print(t, t in flowerpedia)
+    
+    max_tgt = max(tgt, key=lambda x: flowerpedia[x].total_prob if x in flowerpedia else -math.inf)
     pprint(a := ancestors(max_tgt, flowerpedia))
     pprint(stepify(max_tgt, a))
 
