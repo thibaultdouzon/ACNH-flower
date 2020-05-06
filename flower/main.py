@@ -327,6 +327,10 @@ def prob_test_hybrid(
     f12 = f1 + f2
     assert f_h in (f[0] for f in f12), f"Flower {f_h} is not an hybrid of {f1} + {f2}."
 
+    if f1.color == f2.color == f_h.color:
+        # TODO FEAT???: Implement a test that blocks one flower and perform test to prove hybrid is not duplicate.
+        return HybridTestInfo(test_flower=None, test_prob=0., test_color=None)
+
     color_counter = Counter(f.color for f, _ in f12)
     if color_counter[f_h.color] == 1:
         return HybridTestInfo(test_flower=None, test_prob=1.0, test_color=None)
@@ -554,6 +558,7 @@ def stepify(tgt_flower: Flower, ancestor_tree: Dict[str, Any]) -> Tuple[List[Any
             
             res_ref.append((curr_f,
                             tuple(Flower(tgt_flower.type, read_code(c["code"])) for c in children),
+                            tree["prob"] if "prob" in tree else 1.,
                             tree["test"] if "test" in tree else None))
         
     helper_postfix(ancestor_tree, names, res)
@@ -647,8 +652,8 @@ def cli():
             flower_info, _type=args.type, _color=None, _seed=None, _island=args.island
         )
 
-    print(f"{args=}")
-    print(f"{tgt_flowers=}")
+    # print(f"{args=}")
+    # print(f"{tgt_flowers=}")
     return base_flowers, tgt_flowers
 
 

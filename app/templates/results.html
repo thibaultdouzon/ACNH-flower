@@ -1,5 +1,145 @@
 {% extends "base.html" %}
 
 {% block content %}
+<h6>Needed flowers</h6>
 
+<!-- TAB
+F NAME | COLOR | GENES | SEED | ISLAND
+-->
+<div class="row">
+
+    <div class="col offset-s1 s10">
+        
+        <table class="highlight">
+            <thead>
+                <tr>
+                    <th>Flower given name</th>
+                    <th>Flower color</th>
+                    <th>Flower genes</th>
+                    <th>Is seed</th>
+                    <th>Is island</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                {% for flower in base_flowers %}
+                <tr id="{{names[flower.code]}}">
+                    <td>
+                        {{names[flower.code]}}
+                    </td>
+                    <td>
+                        {{flower.color}}
+                    </td>
+                    <td style="font-family: monospace;">
+                        {{flower.code}}
+                    </td>
+                    <td>
+                        {% if flower.is_seed %}
+                        <i class="material-icons prefix">check</i>
+                        {% else %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if flower.is_island %}
+                        <i class="material-icons prefix">check</i>
+                        {% else %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+            
+            <!-- <ul class="collection">
+                {% for flower in base_flowers %}
+                <li class="collection-item">
+                    {{flower}}: {{names[flower.code]}}
+                </li>
+                {% endfor %}
+            </ul> -->
+<div class="divider"></div>
+
+<h6>Steps</h6>
+<div class="row">
+
+    <div class="col offset-s1 s10">
+        
+        <table class="highlight">
+            <thead>
+                <tr>
+                    <th>Step #</th>
+                    <th>Flower name</th>
+                    <th>Flower color</th>
+                    <th>Flower genes</th>
+                    <th>Parent A name</th>
+                    <th>Parent B name</th>
+                    <th>Probability</th>
+                    <th>Block duplicates</th>
+                    <th>Test</th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                {% for i, (flower, ancestors, prob, test) in enumerate(hybrid_flowers, 1) %}
+                <tr id="{{names[flower.code]}}">
+                    <td>
+                        {{i}}
+                    </td>
+                    <td>
+                        {{names[flower.code]}}
+                    </td>
+                    <td>
+                        {{flower.color}}
+                    </td>
+                    <td style="font-family: monospace;">
+                        {{flower.code}}
+                    </td>
+                    <td  onmouseenter="enter_background('{{names[ancestors[0].code]}}')" onmouseleave="leave_background('{{names[ancestors[0].code]}}')">
+                        {{names[ancestors[0].code]}}
+                    </td>
+                    <td onmouseenter="enter_background('{{names[ancestors[1].code]}}')" onmouseleave="leave_background('{{names[ancestors[1].code]}}')">
+                        {{names[ancestors[1].code]}}
+                    </td>
+                    <td>
+                        {{prob}} %
+                    </td>
+                    <td>
+                        {% if ancestors[0].color == flower.color %}
+                        {{names[ancestors[0].code]}}
+                        {% else %}
+                            {% if len(ancestors) > 1 and ancestors[1].color == flower.color %}
+                            {{names[ancestors[1].code]}}
+                            {% else %}
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if test %}
+                        
+                        YES
+
+                        {% else %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function enter_background(flower_name) {
+        $(`#${flower_name}`)[0].classList.add("light-blue") 
+        // $(`#${flower_name}`)[0].classList.add("accent-3") 
+    }
+
+    function leave_background(flower_name) {
+        $(`#${flower_name}`)[0].classList.remove("light-blue") 
+        // $(`#${flower_name}`)[0].classList.remove("accent-3") 
+    }
+
+</script>
 {% endblock %}

@@ -38,8 +38,13 @@ def result_page():
     
     path = main.ancestors(best_flower, flowerpedia)
     
-    return f"{tgt_type=} {tgt_color=} {seed=} {island=} {json.dumps(path)}"
-
+    
+    res, name = main.stepify(best_flower, path)
+    base_flowers_needed = [f for f, a, p, t in res if len(a) == 0]
+    hybrid_flowers = [(f, (a if len(a) == 2 else (a[0], a[0])), f"{float(p) * 100:0.2f}", t) for f, a, p, t in res if len(a) > 0]
+    # return f"{tgt_type=} {tgt_color=} {seed=} {island=} {json.dumps(path)}"
+    return render_template("results.html", base_flowers=base_flowers_needed, hybrid_flowers=hybrid_flowers, names=name, 
+                           len=len, enumerate=enumerate)
 
 
 

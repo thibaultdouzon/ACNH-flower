@@ -78,3 +78,5 @@ Python 3.8.0
 - [x] FEAT006: command line interface with argparse
 
 - [ ] FEAT007: Web interface
+
+- [ ] FEAT008: No test for last flower right color
