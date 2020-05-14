@@ -98,10 +98,10 @@ F NAME | COLOR | GENES | SEED | ISLAND
                     <td style="font-family: monospace;">
                         {{flower.code}}
                     </td>
-                    <td  onmouseenter="enter_background('{{names[ancestors[0].code]}}')" onmouseleave="leave_background('{{names[ancestors[0].code]}}')">
+                    <td style="cursor: pointer" onmouseenter="enter_background('{{names[ancestors[0].code]}}')" onmouseleave="leave_background('{{names[ancestors[0].code]}}')">
                         {{names[ancestors[0].code]}}
                     </td>
-                    <td onmouseenter="enter_background('{{names[ancestors[1].code]}}')" onmouseleave="leave_background('{{names[ancestors[1].code]}}')">
+                    <td style="cursor: pointer" onmouseenter="enter_background('{{names[ancestors[1].code]}}')" onmouseleave="leave_background('{{names[ancestors[1].code]}}')">
                         {{names[ancestors[1].code]}}
                     </td>
                     <td>
@@ -117,7 +117,7 @@ F NAME | COLOR | GENES | SEED | ISLAND
                             {% endif %}
                         {% endif %}
                     </td>
-                    <td onmouseenter="enter_background('Test_{{test_num}}')" onmouseleave="leave_background('Test_{{test_num}}')">
+                    <td style="cursor: pointer" onmouseenter="enter_background('Test_{{test_num}}')" onmouseleave="leave_background('Test_{{test_num}}')">
                         {% if test %}
                         
                         Test_{{test_num}}
@@ -198,6 +198,58 @@ F NAME | COLOR | GENES | SEED | ISLAND
 </div>
 {% else %}
 {% endif %}
+<!-- <canvas id="canvas"></canvas> -->
+<div class="row">
+    <div class="col s10 offset-s1 card-panel" id="graph">
+
+    </div>
+</div>
+<script>
+    let data = {{ graph|tojson }};
+    let names =  {{ names|tojson }};
+    console.log(data);
+    console.log(names);
+
+
+    function populate_graph(graph, data) {
+        let curr_node_name = names[data["code"]];
+        graph.addNode(curr_node_name)
+        if ("A" in data && data.A) {
+            let prev_node = names[data["A"]["code"]];
+            graph.addEdge(prev_node, curr_node_name, { directed : true });
+            
+            populate_graph(graph, data["A"]);
+        }
+
+        if ("B" in data && data.B) {
+            let prev_node = names[data["B"]["code"]];
+            graph.addEdge(prev_node, curr_node_name, { directed : true });
+            
+            populate_graph(graph, data["B"]);
+        }
+    }
+
+
+    function create_graph(data) {
+        let g = new Dracula.Graph();
+        
+        populate_graph(g, data);
+
+        var layouter = new Dracula.Layout.Spring(g);
+        layouter.layout();
+
+        parent = $("#graph").parent();
+
+        var renderer = new Dracula.Renderer.Raphael('#graph', g, parent.width() * 10/12, 400);
+        renderer.draw();
+
+    }
+    
+    create_graph(data);
+    
+</script>
+
+
 <script>
     function enter_background(flower_name) {
         $(`#${flower_name}`)[0].classList.add("light-blue")
