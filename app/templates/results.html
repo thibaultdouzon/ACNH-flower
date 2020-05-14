@@ -211,9 +211,26 @@ F NAME | COLOR | GENES | SEED | ISLAND
     console.log(names);
 
 
+    
+
+
     function populate_graph(graph, data) {
         let curr_node_name = names[data["code"]];
-        graph.addNode(curr_node_name)
+
+        let render = (r, n) => {
+            /* the Raphael set is obligatory, containing all you want to display */
+            var set = r.set().push(
+            /* custom objects go here */
+                r.rect(n.point[0] - 30, n.point[1] - 13, 62, 86)
+                .attr({ fill: '#fa8', 'stroke-width': 2, r: '9px'})
+            ).push(
+                r.text(n.point[0], n.point[1] + 30, n.label)
+                .attr({ 'font-size': '20px' })
+            );
+            return set;
+        }
+
+        graph.addNode(curr_node_name, {label: curr_node_name})
         if ("A" in data && data.A) {
             let prev_node = names[data["A"]["code"]];
             graph.addEdge(prev_node, curr_node_name, { directed : true });

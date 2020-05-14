@@ -67,7 +67,7 @@ Python 3.8.0
 
 - [x] FEAT001: Implement color test in graph exploration.
 
-- [ ] FEAT002: Compute flower Graph and display it.
+- [x] FEAT002: Compute flower Graph and display it.
 
 - [x] FEAT003: Add tag & attribute for island flowers
 
@@ -77,6 +77,6 @@ Python 3.8.0
 
 - [x] FEAT006: command line interface with argparse
 
-- [ ] FEAT007: Web interface
+- [x] FEAT007: Web interface
 
 - [ ] FEAT008: No test for last flower right color
