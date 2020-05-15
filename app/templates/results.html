@@ -198,7 +198,6 @@ F NAME | COLOR | GENES | SEED | ISLAND
 </div>
 {% else %}
 {% endif %}
-<!-- <canvas id="canvas"></canvas> -->
 <div class="row">
     <div class="col s10 offset-s1 card-panel" id="graph">
 
@@ -207,32 +206,41 @@ F NAME | COLOR | GENES | SEED | ISLAND
 <script>
     let data = {{ graph|tojson }};
     let names =  {{ names|tojson }};
-    console.log(data);
-    console.log(names);
 
+    function enter_background(flower_name) {
+        $(`#${flower_name}`)[0].classList.add("light-blue")
+    }
 
-    
-
+    function leave_background(flower_name) {
+        $(`#${flower_name}`)[0].classList.remove("light-blue")
+    }
 
     function populate_graph(graph, data) {
         let curr_node_name = names[data["code"]];
-
+        
         let render = (r, n) => {
             /* the Raphael set is obligatory, containing all you want to display */
-            var set = r.set().push(
-            /* custom objects go here */
-                r.rect(n.point[0] - 30, n.point[1] - 13, 62, 86)
-                .attr({ fill: '#fa8', 'stroke-width': 2, r: '9px'})
-            ).push(
-                r.text(n.point[0], n.point[1] + 30, n.label)
-                .attr({ 'font-size': '20px' })
-            );
-            return set;
+            let color = {
+                Blue: "#5e81ac",
+                Red: "#d02f3d",
+                Green: "#a3be8c",
+                Black: "#111",
+                White: "#DDD",
+                Orange: "#d08770",
+                Purple: "#926189",
+                Pink: "#d164ae",
+                Yellow: "#ebcb8b"
+            }[n.label.split("_")[0]];
+            s = r.set();
+            s.push(r.ellipse(0, 0, 30, 20)
+             .attr({ stroke: color, 'stroke-width': 3, fill: color, 'fill-opacity': 0.1 }))
+             .push(r.text(0, 30, n.label || n.id));
+            return s;
         }
-
-        graph.addNode(curr_node_name, {label: curr_node_name})
+        graph.addNode(curr_node_name, {label: curr_node_name, render: render})
         if ("A" in data && data.A) {
             let prev_node = names[data["A"]["code"]];
+            graph.addNode(prev_node, {label: prev_node, render: render})
             graph.addEdge(prev_node, curr_node_name, { directed : true });
             
             populate_graph(graph, data["A"]);
@@ -240,6 +248,7 @@ F NAME | COLOR | GENES | SEED | ISLAND
 
         if ("B" in data && data.B) {
             let prev_node = names[data["B"]["code"]];
+            graph.addNode(prev_node, {label: prev_node, render: render})
             graph.addEdge(prev_node, curr_node_name, { directed : true });
             
             populate_graph(graph, data["B"]);
@@ -257,24 +266,17 @@ F NAME | COLOR | GENES | SEED | ISLAND
 
         parent = $("#graph").parent();
 
-        var renderer = new Dracula.Renderer.Raphael('#graph', g, parent.width() * 10/12, 400);
+        var renderer = new Dracula.Renderer.Raphael('#graph', g, parent.width() * 9.8/12, 400);
         renderer.draw();
 
+        return Object.keys(g.nodes);
     }
     
-    create_graph(data);
-    
-</script>
-
-
-<script>
-    function enter_background(flower_name) {
-        $(`#${flower_name}`)[0].classList.add("light-blue")
+    let flowers = create_graph(data);
+    for (f of flowers) {
+        let ellipse = $(`text:contains("${f}")`).prev("ellipse");
+        ellipse.attr({onmouseenter: `enter_background("${f}")`, 
+                      onmouseleave: `leave_background("${f}")`});
     }
-
-    function leave_background(flower_name) {
-        $(`#${flower_name}`)[0].classList.remove("light-blue")
-    }
-
 </script>
 {% endblock %}
