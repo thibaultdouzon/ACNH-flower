@@ -82,3 +82,7 @@ Python 3.8.0
 - [ ] FEAT008: No test for last flower right color
 
 - [x] FEAT009: Add hover on svg nodes to table items
+
+- [ ] FEAT010: Dynamic color and type options
+
+- [ ] FEAT011: Pretty error result page
