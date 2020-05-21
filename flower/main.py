@@ -548,7 +548,6 @@ def stepify(tgt_flower: Flower, ancestor_tree: Dict[str, Any]) -> Tuple[List[Any
 
     def helper_postfix(tree: dict, names_ref: Dict[Flower, str], res_ref: List[Any]):
         curr_gene = read_code(tree["code"])
-        print(curr_gene)
         curr_f = Flower(tgt_flower.type, curr_gene)
         
         # Downstream
@@ -611,8 +610,9 @@ def cli():
         type=(lambda x: getattr(Flower, x.upper())),
         choices=Flower.flowertypes,
         help="Type of the searched flower",
+        required=True
     )
-    tgt_group = parser.add_mutually_exclusive_group()
+    tgt_group = parser.add_mutually_exclusive_group(required=True)
     
     tgt_group.add_argument(
         "-c",
@@ -686,8 +686,6 @@ def main():
 
     base, tgt = cli()
     flowerpedia = explore(base)
-
-    print(len(flowerpedia))
     
     for t in tgt:
         print(t, t in flowerpedia)
