@@ -10,8 +10,7 @@ app.flower_db = main.get_flowerpedia_db()
 
 
 @app.route("/", methods=["GET"])
-@app.route("/index", methods=["GET"])
-def index():
+def form_page():
     flower_types = [
         {"name": str(f_type).strip("_").capitalize()}
         for f_type in main.Flower.flowertypes
@@ -52,11 +51,11 @@ def result_page():
     base_flowers_needed = [f for f, a, p, t in res if len(a) == 0]
     # base flowers appearing in tests
     base_flowers_needed.extend(
-        t.test_flower
+        test_f 
         for *_, t in res
         if t
-        and t.test_flower not in base_flowers_needed
-        and t.test_flower not in (f for f, a, *_ in res if len(a) > 0)
+        and (test_f := main.Flower(tgt_type, main.read_code(t["test_flower_code"]))) not in base_flowers_needed
+        and test_f not in (f for f, a, *_ in res if len(a) > 0)
     )
 
     tn = 0
@@ -72,8 +71,9 @@ def result_page():
         if len(a) > 0
     ]
 
-    tests = [t for *_, t in res if t]
-    # return f"{tgt_type=} {tgt_color=} {seed=} {island=} {json.dumps(path)}"
+    test_keys = "unknown_flower_code unknown_flower_color test_flower_code test_flower_color test_prob test_color".split()
+    tests = [[t[k] for k in test_keys] for *_, t in res if t]
+
     return render_template(
         "results.html",
         base_flowers=base_flowers_needed,
@@ -85,3 +85,17 @@ def result_page():
         enumerate=enumerate,
     )
 
+
+@app.route("/compatibility", methods=["POST"])
+def request_compatible_colors():
+    form = request.form
+    
+    change = form["change_from"]
+    tgt = "type" if change == "color" else "color"
+    flower_attr = getattr(main.Flower, form[f"flower_{change}"])
+    
+    possible = sorted({
+        getattr(f, tgt).strip("_").capitalize() for f in main.uget(main.flower_info, **{f"_{change}": flower_attr})
+    })
+    
+    return json.dumps({f"{tgt}s": possible})

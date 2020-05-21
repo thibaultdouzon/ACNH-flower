@@ -83,6 +83,10 @@ Python 3.8.0
 
 - [x] FEAT009: Add hover on svg nodes to table items
 
-- [ ] FEAT010: Dynamic color and type options
+- [x] FEAT010: Dynamic color and type options
 
 - [ ] FEAT011: Pretty error result page
+
+- [ ] FEAT012: Explanation page
+
+- [ ] FEAT013: Center position when node is alone

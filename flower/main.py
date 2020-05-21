@@ -519,7 +519,14 @@ def ancestors(
             "prob": f"{comb_prob:.03}",
             "total_prob": f"{flowerpedia[tgt].total_prob:.03}",
             "color": tgt.color,
-            "test": tgt_info.test if tgt_info.test.test_flower else None,
+            "test": {
+                "unknown_flower_code": tgt_info.test.unknown_flower.code,
+                "unknown_flower_color": tgt_info.test.unknown_flower.color,
+                "test_flower_code": tgt_info.test.test_flower.code,
+                "test_flower_color": tgt_info.test.test_flower.color,
+                "test_prob": tgt_info.test.test_prob,
+                "test_color": tgt_info.test.test_color
+                } if tgt_info.test.test_flower else None,
         }
 
 
@@ -557,9 +564,9 @@ def stepify(tgt_flower: Flower, ancestor_tree: Dict[str, Any]) -> Tuple[List[Any
             n_color = sum(1 for v in names_ref.values() if v.startswith(tree["color"]))
             names_ref[tree["code"]] = f"{tree['color']}_{n_color}"
             
-            if "test" in tree and tree["test"] and tree["test"].test_flower not in names_ref:
-                n_color = sum(1 for v in names_ref.values() if v.startswith(tree["test"].test_flower.color))
-                names_ref[tree["test"].test_flower.code] = f"{tree['test'].test_flower.color}_{n_color}"
+            if "test" in tree and tree["test"] and tree["test"]["test_flower_code"] not in names_ref:
+                n_color = sum(1 for v in names_ref.values() if v.startswith(tree["test"]["test_flower_color"]))
+                names_ref[tree["test"]["test_flower_code"]] = f"{tree['test']['test_flower_color']}_{n_color}"
             
             
             res_ref.append((curr_f,

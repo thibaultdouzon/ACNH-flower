@@ -155,29 +155,29 @@ F NAME | COLOR | GENES | SEED | ISLAND
             </thead>
             
             <tbody>
-                {% for i, (test) in enumerate(tests, 1) %}
+                {% for i, (unknown_flower_code, unknown_flower_color, test_flower_code, test_flower_color, test_prob, test_color) in enumerate(tests, 1) %}
                 <tr id="Test_{{i}}">
                     <td>
                         {{i}}
                     </td>
-                    <td onmouseenter="enter_background('{{names[test.unknown_flower.code]}}')" onmouseleave="leave_background('{{names[test.unknown_flower.code]}}')">
-                        {{names[test.unknown_flower.code]}}
+                    <td onmouseenter="enter_background('{{names[unknown_flower_code]}}')" onmouseleave="leave_background('{{names[unknown_flower_code]}}')">
+                        {{names[unknown_flower_code]}}
                     </td>
-                    <td onmouseenter="enter_background('{{names[test.test_flower.code]}}')" onmouseleave="leave_background('{{names[test.test_flower.code]}}')">
-                        {{names[test.test_flower.code]}}
-                    </td>
-                    <td>
-                        {{test.test_color}}
+                    <td onmouseenter="enter_background('{{names[test_flower_code]}}')" onmouseleave="leave_background('{{names[test_flower_code]}}')">
+                        {{names[test_flower_code]}}
                     </td>
                     <td>
-                        {{test.test_prob}} %
+                        {{test_color}}
                     </td>
                     <td>
-                        {% if test.unknown_flower.color == test.test_color %}
-                        {{names[test.unknown_flower.code]}}
+                        {{test_prob}} %
+                    </td>
+                    <td>
+                        {% if unknown_flower_color == test_color %}
+                        {{names[unknown_flower_code.code]}}
                         {% else %}
-                            {% if test.test_flower.color == test.test_color %}
-                            {{names[test.test_flower.code]}}
+                            {% if test_flower_color == test_color %}
+                            {{names[test_flower_code]}}
                             {% else %}
                             {% endif %}
                         {% endif %}

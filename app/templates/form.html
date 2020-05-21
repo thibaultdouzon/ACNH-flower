@@ -79,6 +79,43 @@
     $(document).ready(function(){
         $('select').formSelect();
     });
+
+    function update_select(select_id, options, selected_value) {
+        select_node = $(select_id);
+        select_node.empty();
+
+        selected = options.map((s) => s.toUpperCase()).includes(selected_value) ? "" : "selected";
+        select_node.append(`<option value='' disabled ${selected}>Choose your option</option>`)
+
+        for (val of options) {
+            selected = val.toUpperCase() === selected_value ? "selected" : "";
+            select_node.append(`<option value="${val.toUpperCase()}" ${selected} >${val}</option>`)
+        }
+
+        select_node.formSelect();
+    }
+
+    $("#tgt-type").change(() => {
+        $.post("/compatibility",
+            {flower_type: $("#tgt-type").val(),
+             change_from: "type"},
+            (data) => {
+                update_select("#tgt-color", data.colors, $("#tgt-color").val())
+            },
+            "json",
+        )
+    }).trigger("change");
+
+    // $("#tgt-color").change(() => {
+    //     $.post("/compatibility",
+    //         {flower_color: $("#tgt-color").val(),
+    //          change_from: "color"},
+    //         (data) => {
+    //             update_select("#tgt-type", data.types, $("#tgt-type").val())
+    //         },
+    //         "json",
+    //     )
+    // })
     
     function validate_form(){
         let tgt_type = $("#tgt-type :selected").val() !== "";
