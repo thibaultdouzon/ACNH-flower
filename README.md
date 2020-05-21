@@ -90,3 +90,5 @@ Python 3.8.0
 - [ ] FEAT012: Explanation page
 
 - [ ] FEAT013: Center position when node is alone
+
+- [ ]FEAT014: When selecting base flowers, add sub ticbox for each color

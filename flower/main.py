@@ -526,7 +526,7 @@ def ancestors(
                 "test_flower_color": tgt_info.test.test_flower.color,
                 "test_prob": tgt_info.test.test_prob,
                 "test_color": tgt_info.test.test_color
-                } if tgt_info.test.test_flower else None,
+                } if tgt_info.test.test_flower and tgt_info.test.unknown_flower else None,
         }
 
 

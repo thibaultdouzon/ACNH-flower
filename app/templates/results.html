@@ -231,7 +231,7 @@ F NAME | COLOR | GENES | SEED | ISLAND
                 Pink: "#d164ae",
                 Yellow: "#ebcb8b"
             }[n.label.split("_")[0]];
-            s = r.set();
+            let s = r.set();
             s.push(r.ellipse(0, 0, 30, 20)
              .attr({ stroke: color, 'stroke-width': 3, fill: color, 'fill-opacity': 0.1 }))
              .push(r.text(0, 30, n.label || n.id));
