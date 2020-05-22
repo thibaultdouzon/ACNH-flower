@@ -92,10 +92,13 @@ def request_compatible_colors():
     
     change = form["change_from"]
     tgt = "type" if change == "color" else "color"
-    flower_attr = getattr(main.Flower, form[f"flower_{change}"])
+    flower_attr = getattr(main.Flower, form[f"flower_{change}"], None)
+    if flower_attr:
+        possible = sorted({
+            getattr(f, tgt).strip("_").capitalize() for f in main.uget(main.flower_info, **{f"_{change}": flower_attr})
+        })
+        
+        return json.dumps({f"{tgt}s": possible})
     
-    possible = sorted({
-        getattr(f, tgt).strip("_").capitalize() for f in main.uget(main.flower_info, **{f"_{change}": flower_attr})
-    })
-    
-    return json.dumps({f"{tgt}s": possible})
+    else:
+        return json.dumps({f"{tgt}s": []})
